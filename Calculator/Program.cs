@@ -12,9 +12,10 @@ namespace Calculator
     {
         static void Main(string[] args)
         {
-            Expression exp = new Expression("3*4+3*2");
-            float total = exp.Evaluate("+-");
+            Expression exp = new Expression("2^2-4*5");
+            float total = exp.Evaluate(0);
             Console.WriteLine(total);
+            Console.WriteLine(exp.expression);
             //int a = 0, b = 0;
             //Console.WriteLine(" - Calculator - ");
             //Console.WriteLine("Type an expression with many numbers");
@@ -46,7 +47,7 @@ namespace Calculator
 
         static Expression()
         {
-            oplist = new string[] { "+-", "*/", "^", "" };
+            oplist = new string[] { "+-", "*/", "^", " " };
         }
 
         static void PrintSteps(string input) { if (true) { Console.WriteLine(input); } }
@@ -56,49 +57,43 @@ namespace Calculator
             this.expression = expression;
         }
 
-        public float Evaluate(string curr_op)
+        public float Evaluate(int curr_op_Index)
         {
-            PrintSteps($"Evaluating {this.expression} for {curr_op}");
+            if (NumCheck(this))
+            {
+                return float.Parse(this.expression);
+            }
 
+            string curr_op = oplist[curr_op_Index];
+            PrintSteps($"Evaluating {this.expression} for {curr_op}");
             float total = 0;
             bool first = true;
             string sub_expression = "";
-            Expression new_expression = new Expression(sub_expression);
+            Expression new_expression;
             char recent_op = curr_op[0];
-            for (int i = 0; i < this.expression.Length; i++)
+            string expr = this.expression + recent_op;
+
+            for (int i = 0; i < expr.Length; i++)
             {
-                PrintSteps($"{this.expression[i]}");
+                PrintSteps($"{expr[i]}");
                 bool operated = false;
                 foreach (char op in curr_op)
                 {
-                    if (op == this.expression[i])
+                    if (op == expr[i])
                     {
                         operated = true;
-                        PrintSteps($"{sub_expression}");
+                        PrintSteps($"New Sub Expression: {sub_expression}");
                         new_expression = new Expression(sub_expression);
 
                         if (first)
                         {
-                            if (NumCheck(new_expression)){
-                                total = float.Parse(new_expression.expression);
-                            }
-                            else
-                            {
-                                total = new_expression.Operate('+', 0);
-                            }
+                            total = new_expression.Evaluate(curr_op_Index + 1);
                             PrintSteps($"Total So Far: {total}");
                             first = false;
                         }
                         else
                         {
-                            if (NumCheck(new_expression))
-                            {
-                                total = float.Parse(new_expression.expression);
-                            }
-                            else
-                            {
-                                total = new_expression.Operate(recent_op, total);
-                            }
+                            total = new_expression.Operate(recent_op, total, curr_op_Index);
                             PrintSteps($"Total So Far: {total}");
                         }
                         sub_expression = "";
@@ -107,24 +102,14 @@ namespace Calculator
 
                 if (operated)
                 {
-                    recent_op = this.expression[i];
+                    recent_op = expr[i];
                 }
                 else
                 {
-                    sub_expression += this.expression[i];
+                    sub_expression += expr[i];
                 }
             }
             PrintSteps($"{sub_expression}");
-            new_expression = new Expression(sub_expression);
-
-            if (NumCheck(new_expression))
-            {
-                total = float.Parse(new_expression.expression);
-            }
-            else
-            {
-                total = this.Operate(recent_op, total);
-            }
             PrintSteps($"Total So Far: {total}");
 
             return total;
@@ -132,35 +117,37 @@ namespace Calculator
 
         }
 
-        public float Operate(char operation, float total)
+        public float Operate(char operation, float total, int curr_op_index)
         {
+            float curr;
             if (NumCheck(this))
             {
-                return float.Parse(this.expression);
+                curr = float.Parse(this.expression);
             }
             else
             {
-                switch (operation)
-                {
-                    case '+':
-                        PrintSteps($"Adding {this.expression}");
-                        return total + this.Evaluate("*/");
-                    case '-':
-                        PrintSteps($"Subtracting {this.expression}");
-                        return total - this.Evaluate("*/");
-                    case '*':
-                        PrintSteps($"Multiplying {this.expression}");
-                        return total * this.Operate(' ', 0);
-                    case '/':
-                        PrintSteps($"Dividing {this.expression}");
-                        return total / this.Operate(' ', 0);
-                    //case "^":
-                    //    PrintSteps("Subtracting");
-                    //    break;
-                    case ' ':
-                        PrintSteps($"Parse {this.expression}");
-                        return float.Parse(this.expression);
-                }
+                curr = Evaluate(curr_op_index + 1);
+            }
+            switch (operation)
+            {
+                case '+':
+                    PrintSteps($"Adding {this.expression}");
+                    return total + curr;
+                case '-':
+                    PrintSteps($"Subtracting {this.expression}");
+                    return total - curr;
+                case '*':
+                    PrintSteps($"Multiplying {this.expression}");
+                    return total * curr;
+                case '/':
+                    PrintSteps($"Dividing {this.expression}");
+                    return total / curr;
+                case '^':
+                    PrintSteps($"Exponent {this.expression}");
+                    return (float) Math.Pow(total, curr);
+                case ' ':
+                    PrintSteps($"Parse {this.expression}");
+                    return float.Parse(this.expression);
             }
             return 0;
 
