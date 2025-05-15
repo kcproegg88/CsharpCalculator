@@ -12,10 +12,9 @@ namespace Calculator
     {
         static void Main(string[] args)
         {
-            Expression exp = new Expression("2^2-4*5");
+            Expression exp = new Expression("((2*2+1^2)+2)*3^2-(4)*5");
             float total = exp.Evaluate(0);
             Console.WriteLine(total);
-            Console.WriteLine(exp.expression);
             //int a = 0, b = 0;
             //Console.WriteLine(" - Calculator - ");
             //Console.WriteLine("Type an expression with many numbers");
@@ -50,7 +49,7 @@ namespace Calculator
             oplist = new string[] { "+-", "*/", "^", " " };
         }
 
-        static void PrintSteps(string input) { if (true) { Console.WriteLine(input); } }
+        static void PrintSteps(string input) { if (false) { Console.WriteLine(input); } }
 
         public Expression(string expression)
         {
@@ -68,15 +67,22 @@ namespace Calculator
             PrintSteps($"Evaluating {this.expression} for {curr_op}");
             float total = 0;
             bool first = true;
+            int brackets = 0;
             string sub_expression = "";
             Expression new_expression;
             char recent_op = curr_op[0];
             string expr = this.expression + recent_op;
 
+
             for (int i = 0; i < expr.Length; i++)
             {
                 PrintSteps($"{expr[i]}");
                 bool operated = false;
+
+                if (expr[i] == '(') { brackets++; sub_expression += expr[i]; continue; } // checks if whole expression is in brackets
+                else if (expr[i] == ')') { brackets--; sub_expression += expr[i]; continue; }
+                if (brackets > 0) { sub_expression += expr[i]; continue; }
+
                 foreach (char op in curr_op)
                 {
                     if (op == expr[i])
@@ -84,6 +90,12 @@ namespace Calculator
                         operated = true;
                         PrintSteps($"New Sub Expression: {sub_expression}");
                         new_expression = new Expression(sub_expression);
+
+                        if (curr_op_Index == 2 && sub_expression[0] == '(')
+                        {
+                            new_expression = new Expression(sub_expression.Substring(1, sub_expression.Length - 2));
+                            return new_expression.Evaluate(0);
+                        }
 
                         if (first)
                         {
@@ -94,7 +106,7 @@ namespace Calculator
                         else
                         {
                             total = new_expression.Operate(recent_op, total, curr_op_Index);
-                            PrintSteps($"Total So Far: {total}");
+                            PrintSteps($"Total So Far: {total}, Hmm");
                         }
                         sub_expression = "";
                     }
@@ -109,8 +121,7 @@ namespace Calculator
                     sub_expression += expr[i];
                 }
             }
-            PrintSteps($"{sub_expression}");
-            PrintSteps($"Total So Far: {total}");
+            PrintSteps($"End of Evaluation, Total So Far: {total}, For: {this.expression} and Operation: {curr_op}\n");
 
             return total;
 
