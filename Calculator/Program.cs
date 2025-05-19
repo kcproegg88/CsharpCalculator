@@ -12,19 +12,19 @@ namespace Calculator
     {
         static void Main(string[] args)
         {
-            Expression exp = new Expression("((2*2+1^2)+2)*3^2-(4)*5");
+            Console.WriteLine(" - Calculator - ");
+            Console.WriteLine("Type an expression with many numbers and operators + - * / ^ ( )");
+            string expstring = Console.ReadLine();
+            //while (InputCheck(expstring)){
+            //    expstring = Console.ReadLine();
+            //}
+            Console.WriteLine("Working");
+            Expression exp = new Expression(expstring);
+            //Expression exp = new Expression("((2*2+1^2)+2)*3^2-(4)*5");
             float total = exp.Evaluate(0);
             Console.WriteLine(total);
             //int a = 0, b = 0;
-            //Console.WriteLine(" - Calculator - ");
-            //Console.WriteLine("Type an expression with many numbers");
             //string input_str = Console.ReadLine();
-            //string[] parts = Console.ReadLine().Split(' '); // problem here being that you don't know the size.
-            //// Input Check
-            //for (int i = 0; i < parts.Length; i++){
-            //    Console.WriteLine($"{parts[i]}");
-
-            //}
 
 
 
@@ -37,7 +37,25 @@ namespace Calculator
             //Console.WriteLine(a);
 
         }
+
+        //public static bool InputCheck(string expression)
+        //{
+        //    HashSet<char> allowed = new HashSet<char>("0123456789+-*/^()");
+
+        //    foreach (char c in expression)
+        //    {
+        //        if (!allowed.Contains(c))
+        //        {
+        //            Console.WriteLine($"Invalid Input Detected: {c}");
+        //            Console.WriteLine("Try Again:");
+        //            return false;
+        //        }
+        //    }
+        //    return true;
+        //}
     }
+
+
 
     public class Expression
     {
