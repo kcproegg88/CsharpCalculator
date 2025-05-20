@@ -13,30 +13,12 @@ namespace Calculator
         static void Main(string[] args)
         {
             new Calculator();
-            //Console.WriteLine(" - Calculator - ");
-            //Console.WriteLine("Type an expression with many numbers and operators + - * / ^ ( )");
-            //string expstring = Console.ReadLine();
-            //while (!InputCheck(expstring)){
-            //    expstring = Console.ReadLine();
-            //    Console.WriteLine("Anything");
-            //}
-            //Console.WriteLine("Working");
+            Console.Read(); // Exit
+
             //Expression exp = new Expression(expstring);
             ////Expression exp = new Expression("((2*2+1^2)+2)*3^2-(4)*5");
             //float total = exp.Evaluate(0);
             //Console.WriteLine(total);
-            //int a = 0, b = 0;
-            //string input_str = Console.ReadLine();
-
-
-
-            //Console.WriteLine("\nLoop a different way");
-            //foreach (string i in parts)
-            //{
-            //    Console.WriteLine(i);
-            //}
-
-            //Console.WriteLine(a);
 
         }
     }
@@ -54,7 +36,6 @@ namespace Calculator
                 GetInput();
                 Calculate();
             }
-            Console.Read();
         }   
 
         private static void Start()
@@ -64,15 +45,20 @@ namespace Calculator
 
         private void GetInput()
         {
-            this.expstring = Console.ReadLine();
-            while (!InputCheck(this.expstring))
+            do
             {
                 this.expstring = Console.ReadLine();
                 if (this.expstring == "exit")
                 {
                     break;
                 }
+            } while (!InputCheck(this.expstring));
+
+            if (this.expstring[0] == '-')
+            {
+                this.expstring = '0' + this.expstring;
             }
+
         }
 
         private static bool InputCheck(string expression)
@@ -81,36 +67,78 @@ namespace Calculator
             HashSet<char> allowed = new HashSet<char>("0123456789.+-*/^()");
             HashSet<char> numerical = new HashSet<char>("0123456789.");
             HashSet<char> operations = new HashSet<char>("+-*/^()");
+            HashSet<char> specops = new HashSet<char>("+-*/^");
 
             string numstr = "";
             bool valid_number = true;
+            bool prevop = false;
+            int bracket_count = 0;
 
             foreach (char c in expression + "-")
             {
-                if (!allowed.Contains(c))
+                if (!allowed.Contains(c))  // check for invalid characters
                 {
-                    Console.WriteLine($"Invalid Input Detected: {c}");
-                    Console.WriteLine("Try Again:");
+                    Console.WriteLine($"Invalid Character Detected: {c} \nTry Again");
                     return false;
                 }
 
-                if (operations.Contains(c))
+                if (operations.Contains(c)) // check for invalid floats
                 {
                     valid_number = float.TryParse(numstr, out float temp);
                     if (!valid_number && numstr != "")
                     {
-                        Console.WriteLine($"Invalid Number: {numstr}");
-                        Console.WriteLine("Try Again");
+                        Console.WriteLine($"Invalid Number: {numstr}\nTry Again");
                         return false;
                     }
                     numstr = "";
+
+                    if (c == '(')
+                    {
+                        bracket_count++;
+                    }
+                    if (c == ')')
+                    {
+                        bracket_count--;
+                    }
                 }
                 else
                 {
                     numstr += c;
                 }
+
+                if (specops.Contains(c)) // check for multiple operations
+                {
+                    if (prevop)
+                    {
+                        Console.WriteLine($"Invalid Operation: {c}\nTry Again");
+                        return false;
+                    }
+                    else
+                    {
+                        prevop = true;
+                    }
+                }
+                else
+                {
+                    prevop = false;
+                }
+
+                if (bracket_count < 0) //  check for more closed brackets than opened brackets
+                {
+                    Console.WriteLine($"Invalid brackets\nTry Again");
+                    return false;
+                }
+
+
             }
-            return true;
+
+            if (bracket_count != 0) // check for all closed brackets
+            {
+                Console.WriteLine($"Invalid number of brackets: {bracket_count}\nTry Again");
+                return false;
+            }
+
+            return bracket_count == 0;
         }
 
         private void Calculate()
