@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -48,6 +49,7 @@ namespace Calculator
             do
             {
                 this.expstring = Console.ReadLine();
+                this.Trim();
                 if (this.expstring == "exit")
                 {
                     break;
@@ -59,6 +61,19 @@ namespace Calculator
                 this.expstring = '0' + this.expstring;
             }
 
+        }
+
+        private void Trim()
+        {
+            string newStr = "";
+            foreach (char c in this.expstring)
+            {
+                if (c != ' ')
+                {
+                    newStr += c;
+                }
+            }
+            this.expstring = newStr;
         }
 
         private static bool InputCheck(string expression)
@@ -168,7 +183,7 @@ namespace Calculator
             oplist = new string[] { "+-", "*/", "^", " " };
         }
 
-        static void PrintSteps(string input) { if (false) { Console.WriteLine(input); } }
+        static void PrintSteps(string input) { if (true) { Console.WriteLine(input); } }
 
         public Expression(string expression)
         {
@@ -210,7 +225,7 @@ namespace Calculator
                         PrintSteps($"New Sub Expression: {sub_expression}");
                         new_expression = new Expression(sub_expression);
 
-                        if (curr_op_Index == 2 && sub_expression[0] == '(')
+                        if (curr_op_Index == 3 && sub_expression[0] == '(')
                         {
                             new_expression = new Expression(sub_expression.Substring(1, sub_expression.Length - 2));
                             return new_expression.Evaluate(0);
