@@ -54,12 +54,12 @@ namespace Calculator
                 GetInput();
                 Calculate();
             }
-            Console.ReadLine();
+            Console.Read();
         }   
 
         private static void Start()
         {
-            Console.WriteLine("Type an expression with many numbers and operators + - * / ^ ( )");
+            Console.WriteLine("\nType an expression with many numbers and operators + - * / ^ ( )");
         }
 
         private void GetInput()
@@ -82,13 +82,32 @@ namespace Calculator
             HashSet<char> numerical = new HashSet<char>("0123456789.");
             HashSet<char> operations = new HashSet<char>("+-*/^()");
 
-            foreach (char c in expression)
+            string numstr = "";
+            bool valid_number = true;
+
+            foreach (char c in expression + "-")
             {
                 if (!allowed.Contains(c))
                 {
                     Console.WriteLine($"Invalid Input Detected: {c}");
                     Console.WriteLine("Try Again:");
                     return false;
+                }
+
+                if (operations.Contains(c))
+                {
+                    valid_number = float.TryParse(numstr, out float temp);
+                    if (!valid_number && numstr != "")
+                    {
+                        Console.WriteLine($"Invalid Number: {numstr}");
+                        Console.WriteLine("Try Again");
+                        return false;
+                    }
+                    numstr = "";
+                }
+                else
+                {
+                    numstr += c;
                 }
             }
             return true;
